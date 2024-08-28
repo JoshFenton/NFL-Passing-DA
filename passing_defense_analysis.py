@@ -60,9 +60,48 @@ df_avg_qb_pivot = df_qb_by_quartile.pivot(columns='Quartile', index='Player', va
 
 df_avg_qb2 = df_joined_wanted2.groupby('Quartile').mean()
 
-print(q0, q1, q2, q3, q4)
+#print(q0, q1, q2, q3, q4)
+#print(df_avg_qb_pivot)
+#print(df_avg_qb2)
+
+def change_detector(x, y):
+    if x <= y:
+        return 1
+    else:
+        return -1
+
+df_avg_qb_pivot.columns = ['Player', 'one', 'two', 'three', 'four']
+df_avg_qb_pivot['one_two'] = df_avg_qb_pivot.apply(lambda x: change_detector(x['one'], x['two']), axis=1)
+df_avg_qb_pivot['two_three'] = df_avg_qb_pivot.apply(lambda x: change_detector(x['two'], x['three']), axis=1)
+df_avg_qb_pivot['three_four'] = df_avg_qb_pivot.apply(lambda x: change_detector(x['three'], x['four']), axis=1)
+
+def shape(x, y, z):
+    if x == 1:
+        if y == 1:
+            if z == 1:
+                return "Expected"
+            else:
+                return "QB Pulled?"
+        else:
+            if z == 1:
+                return "Trap Games?"
+            else:
+                return "Pulled Early?"
+    else:
+        if y == 1:
+            if z == 1:
+                return "Clutch"
+            else:
+                return "Clutch Protected"
+        else:
+            if z == 1:
+                return "Gamer?"
+            else:
+                return "WTF?"
+
+df_avg_qb_pivot['type'] = df_avg_qb_pivot.apply(lambda x: shape(x['one_two'], x['two_three'], x['three_four']), axis=1)
+
 print(df_avg_qb_pivot)
-print(df_avg_qb2)
 
 df_avg_qb_pivot.to_csv('qb_quartile_analysis.csv', index = False)
 
